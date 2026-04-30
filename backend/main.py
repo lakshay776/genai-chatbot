@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
+import time
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
@@ -25,7 +26,6 @@ if not api_key:
     raise RuntimeError("GOOGLE_API_KEY is not set. Make sure backend/.env exists and contains the key.")
 
 client = genai.Client(api_key=api_key)
-MODEL_NAME = "gemini-2.5-flash"
 
 persona_prompts = {
     "anshuman": anshumnan,
@@ -38,6 +38,44 @@ class ChatRequest(BaseModel):
     persona: str
     message: str
     history: list
+
+
+
+# Model priority: try flash-2.5 first, fall back to flash-2.0
+MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
+MAX_RETRIES = 3
+
+
+def call_with_retry(contents, system_instruction):
+    """Try each model with exponential backoff on 503 errors."""
+    last_error = None
+
+    for model_name in MODELS:
+        for attempt in range(MAX_RETRIES):
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        max_output_tokens=300,
+                    ),
+                )
+                print(f"[OK] model={model_name} attempt={attempt+1}")
+                return response.text
+            except Exception as e:
+                last_error = e
+                err_str = str(e)
+                # Only retry on 503 (overloaded) — bail immediately on auth/quota errors
+                if "503" in err_str or "UNAVAILABLE" in err_str:
+                    wait = 2 ** attempt  # 1s, 2s, 4s
+                    print(f"[WARN] {model_name} attempt {attempt+1} failed (503). Retrying in {wait}s…")
+                    time.sleep(wait)
+                else:
+                    print(f"[ERROR] {model_name} non-retryable error: {e}")
+                    break  # try next model
+
+    raise last_error
 
 
 @app.post("/chat")
@@ -61,17 +99,13 @@ def chat(req: ChatRequest):
     )
 
     try:
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=chat_history,
-            config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
-                max_output_tokens=300,
-            ),
-        )
-        reply = response.text
+        reply = call_with_retry(chat_history, system_prompt)
         print("/chat response text:", reply)
         return {"reply": reply}
     except Exception as e:
-        print("/chat error:", e)
-        return {"reply": f"Something went wrong: {str(e)}"}
+        err_str = str(e)
+        print("/chat final error:", err_str)
+        if "503" in err_str or "UNAVAILABLE" in err_str:
+            return {"reply": "⚠ The AI model is overloaded right now. Please try again in a few seconds."}
+        return {"reply": f"Something went wrong. Please try again."}
+
