@@ -1,0 +1,47 @@
+# ======================
+# Python / Virtual Env
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment directories (the venv lives inside backend/)
+backend/Lib/
+backend/Include/
+backend/Scripts/
+backend/pyvenv.cfg
+
+# ======================
+# Environment / Secrets
+# ======================
+.env
+*.env
+!.env.example
+
+# ======================
+# Node / Frontend
+# ======================
+node_modules/
+.next/
+dist/
+.cache/
+
+# ======================
+# Editor / OS
+# ======================
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ======================
+# Misc
+# ======================
+*.log
