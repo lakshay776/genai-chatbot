@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { PERSONAS } from './personas';
 import './App.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://genai-chatbot-lg26.onrender.com';
 
 // ── helper: simulate streaming by revealing text char-by-char ─────────────
 function useStreaming() {
