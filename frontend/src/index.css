@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
+
+/* ── CSS Reset ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design Tokens ──────────────────────────────── */
+:root {
+  --pixel-font: 'VT323', monospace;
+  --title-font: 'Press Start 2P', monospace;
+
+  /* Anshuman — deep blue / cyan */
+  --persona-anshuman-bg:     #0a0e1a;
+  --persona-anshuman-accent: #00f5ff;
+  --persona-anshuman-dim:    #00a8b5;
+  --persona-anshuman-panel:  #0d1427;
+
+  /* Abhimanyu — dark green / lime */
+  --persona-abhimanyu-bg:     #070f0a;
+  --persona-abhimanyu-accent: #39ff14;
+  --persona-abhimanyu-dim:    #1a9900;
+  --persona-abhimanyu-panel:  #0b1510;
+
+  /* Kshitij — deep red / orange */
+  --persona-kshitij-bg:     #120808;
+  --persona-kshitij-accent: #ff4500;
+  --persona-kshitij-dim:    #b03000;
+  --persona-kshitij-panel:  #1a0c0c;
+
+  /* Active tokens (updated by JS class on body) */
+  --bg:     #0a0e1a;
+  --accent:  #00f5ff;
+  --dim:     #00a8b5;
+  --panel:  #0d1427;
+}
+
+body.persona-anshuman {
+  --bg: var(--persona-anshuman-bg);
+  --accent: var(--persona-anshuman-accent);
+  --dim: var(--persona-anshuman-dim);
+  --panel: var(--persona-anshuman-panel);
+}
+body.persona-abhimanyu {
+  --bg: var(--persona-abhimanyu-bg);
+  --accent: var(--persona-abhimanyu-accent);
+  --dim: var(--persona-abhimanyu-dim);
+  --panel: var(--persona-abhimanyu-panel);
+}
+body.persona-kshitij {
+  --bg: var(--persona-kshitij-bg);
+  --accent: var(--persona-kshitij-accent);
+  --dim: var(--persona-kshitij-dim);
+  --panel: var(--persona-kshitij-panel);
+}
+
+/* ── Base ───────────────────────────────────────── */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--accent);
+  font-family: var(--pixel-font);
+  font-size: 18px;
+  line-height: 1.5;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  position: relative;
+}
+
+/* CRT scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  z-index: 9999;
+}
+
+/* ── Scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--dim); }
+
+/* ── Pixel border utility ───────────────────────── */
+.pixel-border {
+  border: 2px solid var(--accent);
+  box-shadow: 4px 4px 0 var(--dim);
+}

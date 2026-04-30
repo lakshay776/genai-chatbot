@@ -27,9 +27,15 @@ backend/pyvenv.cfg
 # Node / Frontend
 # ======================
 node_modules/
+frontend/node_modules/
 .next/
 dist/
 .cache/
+
+# Frontend secrets
+frontend/.env
+!frontend/.env.example
+
 
 # ======================
 # Editor / OS
